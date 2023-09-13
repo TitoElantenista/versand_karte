@@ -1,11 +1,8 @@
 import streamlit as st
-import os
-import base64
 from PIL import Image
 import folium
-import shutil
-
-
+import base64
+import tempfile
 
 
 def obtener_coordenadas(foto_path):
@@ -101,34 +98,29 @@ def create_thumbnail(image_path, folder_path, base_width=300):
 def main():
     st.title("Karten-Generator für Fotos mit Koordinaten")
 
+    uploaded_files = st.file_uploader("Laden Sie Ihre Fotos hoch", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
 
-    # Solicitar al usuario que seleccione la carpeta con las fotos
-    folder_path = st.text_input("Bitte geben Sie den Pfad zum Fotoordner ein:")
-        # Auswahl des Thumbnail-Größes
-    optionen = {
-        "280 (empfohlen für Handys)": 280,
-        "400 (empfohlen für Tablets)": 400,
-        "600 (empfohlen für Computer)": 600
-    }
-    thumbnail_groesse = st.selectbox("Wählen Sie die Thumbnail-Größe:", list(optionen.keys()))
-    if folder_path:
-        # Verificar que la carpeta existe
-        if os.path.exists(folder_path):
-            # Ejecutar el proceso principal cuando el usuario haga clic en el botón
-            if st.button("Karte erstellen"):
-                # Proceso principal
-               
-                # Lista para almacenar las coordenadas junto con los nombres de las fotos
-                coordenadas_nombres = []
+    if uploaded_files:
+        # Solicitar al usuario que seleccione la carpeta con las fotos
+        optionen = {
+            "280 (empfohlen für Handys)": 280,
+            "400 (empfohlen für Tablets)": 400,
+            "600 (empfohlen für Computer)": 600
+        }
+        thumbnail_groesse = st.selectbox("Wählen Sie die Thumbnail-Größe:", list(optionen.keys()))
 
+        if st.button("Karte erstellen"):
+            # Proceso principal
+            coordenadas_nombres = []
 
-                # Agregar todas las coordenadas válidas a la lista junto con los nombres de las fotos
-                for foto in os.listdir(folder_path):
-                    if foto.endswith(('.jpg', '.jpeg', '.png')):
-                        foto_path = os.path.join(folder_path, foto)
-                        coordenadas = obtener_coordenadas(foto_path)
-                        if coordenadas:
-                            coordenadas_nombres.append((coordenadas, foto))
+            for uploaded_file in uploaded_files:
+                # Usar un objeto temporal para obtener la ruta del archivo
+                with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                    temp_file.write(uploaded_file.getvalue())
+                    foto_path = temp_file.name
+                    coordenadas = obtener_coordenadas(foto_path)
+                    if coordenadas:
+                        coordenadas_nombres.append((coordenadas, uploaded_file.name))
 
 
                 # Calcular el centro promedio de las coordenadas
@@ -162,22 +154,17 @@ def main():
                     folium.Marker(coord, popup=popup).add_to(m)
 
 
-                # Speichern Sie die Karte in einer HTML-Datei
-                output_file = os.path.join(folder_path, "mapa_fotos.html")
-                m.save(output_file)
+            # Guardar el mapa en un archivo temporal
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as temp_file:
+                m.save(temp_file.name)
+                temp_html_path = temp_file.name
 
-
-                # Thumbnail-Ordner löschen
-                temp_dir = os.path.join(folder_path, "temp_thumbnails")
-                if os.path.exists(temp_dir):
-                    shutil.rmtree(temp_dir)
-
-
-                # Bestätigungsnachricht anzeigen
-                st.success(f"Karte erstellt in: {output_file}")
-                st.write(f"{len(coordenadas_nombres)} Koordinaten extrahiert.")
-        else:
-            st.error("Der angegebene Ordner existiert nicht. Bitte überprüfen Sie den Pfad.")
+            # Proporcionar un enlace de descarga
+            with open(temp_html_path, "rb") as f:
+                bytes_html = f.read()
+                b64_html = base64.b64encode(bytes_html).decode()
+                href = f'<a download="mapa_fotos.html" href="data:text/html;base64,{b64_html}">Download Map</a>'
+                st.markdown(href, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
