@@ -91,12 +91,15 @@ def main():
             m = folium.Map(location=centro, zoom_start=17)
 
             for coord, foto_nombre in coordenadas_nombres:
-                image_obj = Image.open(uploaded_file)
-                thumbnail_io = create_thumbnail(image_obj)
-                encoded_image = encode_image_to_base64(thumbnail_io)
-                popup_content = f'<p>{foto_nombre}</p><img src="data:image/jpeg;base64,{encoded_image}" width="300">'
-                popup = folium.Popup(popup_content, max_width=400)
-                folium.Marker(coord, popup=popup).add_to(m)
+                for u_file in uploaded_files:
+                    if u_file.name == foto_nombre:
+                        image_obj = Image.open(u_file)
+                        thumbnail_io = create_thumbnail(image_obj, optionen[thumbnail_groesse])
+                        encoded_image = encode_image_to_base64(thumbnail_io)
+                        popup_content = f'<p>{foto_nombre}</p><img src="data:image/jpeg;base64,{encoded_image}" width="300">'
+                        popup = folium.Popup(popup_content, max_width=400)
+                        folium.Marker(coord, popup=popup).add_to(m)
+                        break
 
             with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as temp_file:
                 m.save(temp_file.name)
