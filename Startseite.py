@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_title="Startseite")
 
 def main():
     st.title("Foto-Ortung")
