@@ -1,8 +1,6 @@
 import streamlit as st
 
 def main():
-    st.title("Bienvenido a Foto-Ortung")
-
     markdown_text = """
     # Foto-Ortung: Was die App kann
 
