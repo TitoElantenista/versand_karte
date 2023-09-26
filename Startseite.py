@@ -29,7 +29,7 @@ def main():
     # Aktuelle Limitierungen
 
     **Metadaten:**  
-    Viele mobile Apps löschen aus Sicherheitsgründen die in Dateien eingebetteten Metadaten, wenn sie auf eine Webseite hochgeladen werden. Daher empfehle ich, diese App auf einem Computer zu verwenden und die Anweisungen im Menü unter "Anleitung" zu befolgen, um sicherzustellen, dass die App funktioniert.
+    Viele mobile Apps löschen aus Sicherheitsgründen die in Dateien eingebetteten Metadaten, wenn sie auf eine Webseite hochgeladen werden. Daher empfehle ich, diese App auf einem Computer zu verwenden und die Anweisungen im Menü unter "So funktioniert's" zu befolgen, um sicherzustellen, dass die App funktioniert.
 
     ---
 
