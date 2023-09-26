@@ -6,13 +6,13 @@ st.title('Wie man die App verwendet 📱')
 st.write('---')  # Línea separadora
 
 # Paso 1
-st.subheader('1. Daten speichern 🛰')
+st.subheader('1. Einstellungen überprüfen 🛰')
 st.write('Aktivieren Sie auf Ihrem Mobilgerät die Option, um die Daten der Koordinaten zu speichern, an denen Fotos aufgenommen werden.')
-
+st.video('https://youtube.com/embed/ihezu7b3KXU')
 st.write('---')  # Línea separadora
 
 # Paso 2-3
-st.subheader('2-3. Verbindung zum PC und Fotos übertragen 💻📸')
+st.subheader('2. Verbindung zum PC und Fotos übertragen 💻📸')
 st.write('''
 - Schließen Sie Ihr Gerät, mit dem Sie Fotos aufgenommen haben, an Ihren PC an.
 - Übertragen Sie die Fotos mithilfe des Windows-Explorers auf Ihren PC.
@@ -21,7 +21,7 @@ st.write('''
 st.write('---')  # Línea separadora
 
 # Paso 4
-st.subheader('4. Fotos hochladen 🔄')
+st.subheader('3. Fotos hochladen 🔄')
 st.write('''
 Wählen Sie die Fotos aus, mit denen Sie eine Karte erstellen möchten, und ziehen Sie sie in das Feld mit der Aufschrift "Drag and drop files here". 
 Wenn kein Foto die Koordinaten korrekt gespeichert hat, sehen Sie die Nachricht "Kein hochgeladenes Foto enthält GPS-Koordinaten". 
@@ -32,7 +32,7 @@ Wenn Sie mehrere Fotos hinzugefügt haben, sehen Sie die Linie, die die Marker a
 st.write('---')  # Línea separadora
 
 # Paso 5
-st.subheader('5. Thumbnail-Größe wählen 🔍')
+st.subheader('4. Thumbnail-Größe wählen 🔍')
 st.write('''
 Wählen Sie die Größe der Bilder in den Vorschaubildern über das Dropdown-Menü "Wählen Sie die Thumbnail-Größe:".
 *Hinweis:* Diese Option wird derzeit überprüft, da es möglich ist, dass die PC-Option für alle Geräte geeignet ist. Sie können jedoch gerne mehrere Karten erstellen und die Ergebnisse überprüfen.
@@ -41,7 +41,7 @@ Wählen Sie die Größe der Bilder in den Vorschaubildern über das Dropdown-Men
 st.write('---')  # Línea separadora
 
 # Paso 6
-st.subheader('6. Fotos anzeigen und kommentieren 🖼️💬')
+st.subheader('5. Fotos anzeigen und kommentieren 🖼️💬')
 st.write('''
 Klicken Sie in der Vorschau auf die Marker, um die Fotos anzuzeigen. Sie sehen den Namen des Fotos und den Zeitpunkt der Aufnahme.
 Sie können auch Kommentare zu den Fotos hinzufügen, indem Sie das Foto im Dropdown-Menü auswählen, einen Kommentar schreiben und die Schaltfläche "Kommentar einfügen" drücken. Die Enter-Taste oder ähnliche Optionen funktionieren nicht, um den Kommentar einzufügen.
@@ -50,12 +50,13 @@ Sie können auch Kommentare zu den Fotos hinzufügen, indem Sie das Foto im Drop
 st.write('---')  # Línea separadora
 
 # Paso 7
-st.subheader('7. Datei herunterladen ⬇️')
+st.subheader('6. Datei herunterladen ⬇️')
 st.write('''
 Klicken Sie auf den Button "Datei vorbereiten". Nach einer kurzen Wartezeit erscheint unter dem Button ein blauer Link "Karte herunterladen" und eine Bestätigungsnachricht.
 ''')
 
 st.write('---')  # Línea separadora
+st.video('https://www.youtube.com/watch?v=Es0zCgm_ES4')
 
 # FAQ
 st.title('FAQ ❓')
