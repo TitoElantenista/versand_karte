@@ -62,10 +62,13 @@ st.video('https://www.youtube.com/watch?v=Es0zCgm_ES4')
 st.title('FAQ ❓')
 st.write('''
 - **Wie weiß ich, ob die App einen Fehler hat oder funktioniert?**
-    - Wenn Sie viele Fotos hochladen, kann die App langsam sein. Wenn Sie in der oberen rechten Ecke die Nachricht "running" sehen, bedeutet dies, dass die App arbeitet und Änderungen aktualisiert / die Karte neu erstellt. Bitte haben Sie Geduld.
+    - Wenn Sie viele Fotos hochladen, kann die App langsam sein. Wenn Sie in der oberen rechten Ecke die Nachricht "running" sehen, bedeutet dies, dass die App arbeitet und Änderungen aktualisiert/die Karte neu erstellt. Bitte haben Sie Geduld.
 - **Was passiert, wenn ich die Seite aktualisiere?**
     - Glückwunsch! Sie müssen von vorne beginnen, denn wie ich bereits erwähnt habe, speichere ich Ihre Informationen nicht und kann daher weder erkennen, wer Sie sind, noch Ihre Sitzung wiederherstellen.
+- **Warum werden Fotos auf der Karte an Orten angezeigt, an denen das Foto nicht aufgenommen wurde?**
+    - Das Programm ist keine Zauberei und kann nur anhand der von Ihnen zur Verfügung gestellten Daten die Koordinaten lesen. Wenn das Gerät diese Koordinaten ungenau aufnimmt, werden die Fotos auf der Karte auch ungenau platziert. Eine zweite Möglichkeit besteht darin, dass Ihr Gerät mit der App nicht kompatibel ist. Dies ist zwar unwahrscheinlich, aber möglich. Sie können mich kontaktieren, wenn Sie denken, dies könnte das Problem sein.
 ''')
+
 
 
 # Puedes añadir más elementos de Streamlit si lo consideras necesario.
