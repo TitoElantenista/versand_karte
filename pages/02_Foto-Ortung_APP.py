@@ -263,7 +263,7 @@ def main():
             with open(temp_html_path, "rb") as f:
                 bytes_html = f.read()
                 b64_html = base64.b64encode(bytes_html).decode()
-                href = f'<a download="mapa_fotos.html" href="data:text/html;base64,{b64_html}">Karte herunterladen</a>'
+                href = f'<a download="Karte_GPS.html" href="data:text/html;base64,{b64_html}">Karte herunterladen</a>'
                 st.markdown(href, unsafe_allow_html=True)
 
             st.info(
