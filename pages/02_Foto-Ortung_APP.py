@@ -6,7 +6,6 @@ from io import BytesIO
 import tempfile
 import streamlit_folium
 import folium.plugins
-from folium.plugins import PolyLineTextPath
 from geopy.distance import geodesic
 from folium.plugins import MiniMap
 from folium.plugins import MousePosition
@@ -17,7 +16,7 @@ def obtener_coordenadas(image_obj):
     exif_data = image_obj._getexif()
     if not exif_data:
         return None
-   
+
     gps_info = exif_data.get(34853, None)
     if gps_info:
         lat = gps_info.get(2, None)
@@ -40,12 +39,10 @@ def primeros_dos_puntos_distantes(coords, min_dist=20):
     if len(coords) < 2:
         return coords
 
-
     punto_inicial = coords[0]
     for punto in coords[1:]:
         if geodesic(punto_inicial, punto).meters >= min_dist:
             return [punto_inicial, punto]
-
 
     return [punto_inicial]
 
@@ -55,8 +52,6 @@ def obtener_fecha_hora(image_obj):
     if 36867 in exif_data:
         return exif_data[36867]
     return None
-
-
 
 
 def obtener_orientacion(image_obj):
@@ -95,7 +90,7 @@ def apply_exif_orientation(image):
     return image
 
 
-def create_thumbnail(image_obj, base_width=300):
+def create_thumbnail(image_obj, base_width):
     img = apply_exif_orientation(image_obj)
     w_percent = base_width / float(img.size[0])
     h_size = int(float(img.size[1]) * float(w_percent))
@@ -106,15 +101,21 @@ def create_thumbnail(image_obj, base_width=300):
     return thumbnail_io
 
 
-def generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro, uploaded_files, foto_destacada=None):
+def generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro, uploaded_files,
+                 foto_destacada=None, mostrar_barra_de_progreso=True):
+    if mostrar_barra_de_progreso:
+        progress_bar = st.progress(0)
+        status_message = st.empty()
+        status_message.text("Karte wird generiert...")
     m = folium.Map(location=centro, zoom_start=17)
-    minimap = MiniMap(fixedZoom=False, min_zoom=30)
+    minimap = MiniMap()
     m.add_child(minimap)
-
+    if mostrar_barra_de_progreso:
+        progress_bar.progress(0.4)  # 40%
     MousePosition().add_to(m)
     # Creamos un MarkerCluster
     marker_cluster = folium.plugins.MarkerCluster().add_to(m)
-    
+
     # Ordenar las fotos por fecha y hora
     coordenadas_nombres_fecha = []
     for coord, foto_nombre in coordenadas_nombres:
@@ -124,7 +125,7 @@ def generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, 
                 coordenadas_nombres_fecha.append((coord, foto_nombre, fecha_hora))
                 break
     coordenadas_nombres_fecha.sort(key=lambda x: x[2])  # Ordenar por fecha y hora
-   
+
     for coord, foto_nombre, _ in coordenadas_nombres_fecha:
         for u_file in uploaded_files:
             if u_file.name == foto_nombre:
@@ -132,14 +133,14 @@ def generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, 
                 thumbnail_io = create_thumbnail(image_obj, optionen[thumbnail_groesse])
                 encoded_image = encode_image_to_base64(thumbnail_io)
                 comentario_usuario = comentarios.get(foto_nombre, "")
-               
+
                 # Aquí agregamos la fecha y hora al contenido emergente
                 popup_content = f'<p>{foto_nombre}</p>'
                 fecha_hora = obtener_fecha_hora(image_obj)
                 if fecha_hora:
                     popup_content += f'<p>Datum und Uhrzeit: {fecha_hora}</p>'
-                popup_content += f'<p>{comentario_usuario}</p><img src="data:image/jpeg;base64,{encoded_image}" width="280">'
-               
+                popup_content += f'<p>{comentario_usuario}</p><img src="data:image/jpeg;base64,{encoded_image}" width="{[thumbnail_groesse]}">'
+
                 # Cambia el color del marcador si es la foto destacada
                 if foto_nombre == foto_destacada:
                     marker_color = "red"
@@ -148,22 +149,27 @@ def generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, 
                 else:
                     marker_color = "blue"
 
-
-                folium.Marker(coord, popup=popup_content, icon=folium.Icon(icon="circle", color=marker_color)).add_to(marker_cluster)
+                folium.Marker(coord, popup=popup_content, icon=folium.Icon(icon="circle", color=marker_color)).add_to(
+                    marker_cluster)
                 break
-   
+
     # Dibujar una polilínea en el mapa
     coords_linea = [coord for coord, _, _ in coordenadas_nombres_fecha]
-    AntPath(coords_linea, color="blue", weight=2.5, opacity=0.7, delay=1000).add_to(m)  # 1000 milisegundos es igual a 1 segundo
-   
+    AntPath(coords_linea, color="blue", weight=2.5, opacity=0.7, delay=1000).add_to(
+        m)  # 1000 milisegundos es igual a 1 segundo
+    if mostrar_barra_de_progreso:
+        progress_bar.progress(1.0)  # 100%
+        status_message.text("Karte erfolgreich erstellt!")
+
     return m
+
 
 def main():
     st.title("Karten-Generator für Fotos mit Koordinaten")
     st.markdown("""---""")
     if 'uploaded_images' not in st.session_state:
         st.session_state.uploaded_images = []
-   
+
     new_uploaded_files = st.file_uploader("Laden Sie Ihre Fotos hoch...", type=['jpg', 'jpeg', 'png'], accept_multiple_files=True)
 
     # Si hay archivos en el file uploader, compara con los del session_state
@@ -182,14 +188,11 @@ def main():
             if file.name not in current_file_names:
                 st.session_state.uploaded_images.append(file)
 
-
-
     if new_uploaded_files:
         current_file_names = [f.name for f in st.session_state.uploaded_images]
         for file in new_uploaded_files:
             if file.name not in current_file_names:
                 st.session_state.uploaded_images.append(file)
-
 
     if st.session_state.uploaded_images:
         optionen = {
@@ -199,11 +202,9 @@ def main():
         }
         thumbnail_groesse = st.selectbox("Wählen Sie die Thumbnail-Größe:", list(optionen.keys()))
 
-
         coordenadas_nombres = []
         fotos_ignoradas = 0
         comentarios = {}
-
 
         # Inicializar st.session_state.comentarios si aún no existe
         if 'comentarios' not in st.session_state:
@@ -215,7 +216,7 @@ def main():
             coordenadas = obtener_coordenadas(image_obj)
             if coordenadas:
                 coordenadas_nombres.append((coordenadas, uploaded_file.name))
-               
+
                 # Si la foto no tiene un comentario en session_state, asignarle un valor vacío.
                 if uploaded_file.name not in st.session_state.comentarios:
                     comentarios[uploaded_file.name] = ""
@@ -225,50 +226,48 @@ def main():
         if not coordenadas_nombres:
             st.error("Kein hochgeladenes Foto enthält GPS-Koordinaten.")
             return
-        else:
-            st.success(f"{len(coordenadas_nombres)} Fotos haben Koordinaten. {fotos_ignoradas} Fotos haben keine Koordinaten.")
 
         lat_promedio = sum(coord[0] for coord, _ in coordenadas_nombres) / len(coordenadas_nombres)
         lon_promedio = sum(coord[1] for coord, _ in coordenadas_nombres) / len(coordenadas_nombres)
         centro = (lat_promedio, lon_promedio)
 
-
-        foto_seleccionada = st.selectbox("Seleccione una foto para agregar un comentario:", [nombre for _, nombre in coordenadas_nombres])
-        comentario = st.text_area(f"Comentario para {foto_seleccionada}", value=comentarios[foto_seleccionada])
-
+        foto_seleccionada = st.selectbox("Wählen Sie ein Foto aus, um einen Kommentar hinzuzufügen:",
+                                         [nombre for _, nombre in coordenadas_nombres])
+        comentario = st.text_area(f"Kommentar für das Foto {foto_seleccionada}", value=comentarios[foto_seleccionada])
 
         # Reserva un espacio para el mapa
         mapa_placeholder = st.empty()
         boton_presionado = False
 
-
-        if st.button("Agregar comentario"):
+        if st.button("Kommentar hinzufügen"):
             st.session_state.comentarios[foto_seleccionada] = comentario
             comentarios[foto_seleccionada] = comentario
-           
+
             boton_presionado = True
-            m = generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro, st.session_state.uploaded_images, foto_seleccionada)
+            m = generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro,
+                             st.session_state.uploaded_images, foto_seleccionada)
             mapa_placeholder.empty()
             streamlit_folium.folium_static(m)
 
-
         if not boton_presionado:
-            m = generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro, st.session_state.uploaded_images, foto_seleccionada)
+            m = generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro,
+                             st.session_state.uploaded_images, foto_seleccionada)
             streamlit_folium.folium_static(m)
-        if st.button("Karte herunterladen"):
-            m = generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro, st.session_state.uploaded_images)
+        if st.button("Karte als HTML-Datei erstellen"):
+            m = generar_mapa(coordenadas_nombres, comentarios, optionen, thumbnail_groesse, centro,
+                             st.session_state.uploaded_images, mostrar_barra_de_progreso=False)
             with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as temp_file:
                 m.save(temp_file.name)
                 temp_html_path = temp_file.name
-
 
             with open(temp_html_path, "rb") as f:
                 bytes_html = f.read()
                 b64_html = base64.b64encode(bytes_html).decode()
                 href = f'<a download="mapa_fotos.html" href="data:text/html;base64,{b64_html}">Karte herunterladen</a>'
                 st.markdown(href, unsafe_allow_html=True)
-           
-            st.info(f"{len(coordenadas_nombres)} Fotos mit Koordinaten verarbeitet. {fotos_ignoradas} Fotos wurden aufgrund fehlender Koordinaten ignoriert.")
+
+            st.info(
+                f"{len(coordenadas_nombres)} Fotos mit Koordinaten verarbeitet. {fotos_ignoradas} Fotos wurden aufgrund fehlender Koordinaten ignoriert.")
 
 
 if __name__ == "__main__":
